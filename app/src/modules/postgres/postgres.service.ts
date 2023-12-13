@@ -42,14 +42,6 @@ export default class PostgresService implements OnModuleDestroy, OnModuleInit {
   async checkConnect(recurse = false): Promise<boolean> {
     try {
       await this.pool.query('SELECT 1+1');
-      console.log('Database info', PostgresService.name, {
-        host: this.config.host,
-        user: this.config.user,
-        idle: this.pool.idleCount,
-        waiting: this.pool.waitingCount,
-        total: this.pool.totalCount,
-        max: this.config.max,
-      });
       return true;
     } catch (error) {
       console.error('Database connection error', PostgresService.name, { error });
