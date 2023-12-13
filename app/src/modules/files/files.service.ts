@@ -3,24 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
 
-import {
-  FileCreate,
-  FileMinioGet,
-  FileMinioMeta,
-  FileNameParseResult,
-  IdSql,
-} from './interfaces/files.interfaces';
+import { FileMinioGet, FileMinioMeta, FileNameParseResult } from './interfaces/files.interfaces';
 
 import minioClient from '../../utils/minio.client';
-import PostgresService from '../postgres/postgres.service';
 
 /**
  * Сервис для работы с файлами. Работа производится с minio и с базой данных
  */
 @Injectable()
 export default class FilesService {
-  constructor() {}
-
   buildPath(name: string, dir: string) {
     return `${dir}/${name}`;
   }

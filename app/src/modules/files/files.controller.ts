@@ -10,9 +10,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import FilesService from './files.service';
-
 import FilesGetDto from './dto/files-get.dto';
+import FilesService from './files.service';
 
 @Controller('files')
 export default class FilesController {
