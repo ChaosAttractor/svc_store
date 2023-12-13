@@ -5,4 +5,5 @@ export default class ClothesCreateDto implements ClothesInterface {
   collectionId: number;
   description: string;
   imagePath: string;
+  price: number;
 }

@@ -9,6 +9,7 @@ export interface ClothesInterface {
   collectionId: number;
   description: string;
   imagePath: string;
+  price: number;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -44,7 +44,8 @@ export default class ClothesService {
       name,
       collection_id as "collectionId",
       description,
-      image_path as "imagePath"
+      image_path as "imagePath",
+      price
     `;
 
     const data = await this.postgresService.query<ClothesInterface[]>(
@@ -63,13 +64,13 @@ export default class ClothesService {
   }
 
   async create(dto) {
-    const { name, collectionId, description, imagePath } = dto;
-    const params = [name, collectionId, description, imagePath];
+    const { name, collectionId, description, imagePath, price } = dto;
+    const params = [name, collectionId, description, imagePath, price];
 
     await this.postgresService.query(
       `
-      INSERT INTO clothes (name, collection_id, description, image_path, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, now(), now())
+      INSERT INTO clothes (name, collection_id, description, image_path, price, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, now(), now())
     `,
       params,
     );
