@@ -8,7 +8,7 @@ const bootstrap = async () => {
 
   app.use(bodyParser.json({ limit: '60mb' }));
   app.use(bodyParser.urlencoded({ limit: '60mb', extended: true }));
-
+  app.setGlobalPrefix('api/v1');
   const port = +process.env.SVC_PORT || 8080;
   const host = process.env.SVC_HOSTNAME || '0.0.0.0';
   await app.listen(port, host);
