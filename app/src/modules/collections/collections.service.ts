@@ -21,7 +21,8 @@ export default class CollectionsService {
 
     const [data] = await this.postgresService.query(
       `
-      INSERT INTO collections (name) VALUES ($1)
+      INSERT INTO collections (name, created_at, updated_at)
+      VALUES ($1, now(), now())
       RETURNING id, name
     `,
       params,

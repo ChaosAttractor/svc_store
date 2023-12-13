@@ -9,7 +9,9 @@ exports.up = async (pgm) => {
         "name" varchar(255),
         "collection_id" integer REFERENCES collections ON DELETE SET NULL,
         "description" text,
-        "image_path" varchar(255)
+        "image_path" varchar(255),
+        "created_at" timestamp,
+        "updated_at" timestamp
     )
   `);
 };
