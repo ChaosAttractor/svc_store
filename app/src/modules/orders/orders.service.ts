@@ -79,10 +79,12 @@ export default class OrdersService {
       `
       SELECT
           order_id as "orderId",
-          clothes_id as "clothesId",
-          quantity
-          FROM orders_clothes
-      WHERE order_id = ANY($1)
+          c.name,
+          quantity,
+          c.price
+            FROM orders_clothes oc
+              LEFT JOIN clothes c ON c.id = oc.clothes_id
+              WHERE order_id = ANY($1)
     `,
       params,
     );
