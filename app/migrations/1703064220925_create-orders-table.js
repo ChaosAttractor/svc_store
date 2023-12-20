@@ -4,7 +4,7 @@ exports.shorthands = undefined;
 
 exports.up = async (pgm) => {
   await pgm.sql(`
-    CREATE TABLE "orders_detail" (
+    CREATE TABLE "orders" (
         "id" serial primary key,
         "email" varchar(255) NOT NULL,
         "link" varchar(255),
