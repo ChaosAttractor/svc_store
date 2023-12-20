@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 
 import OrdersService from './orders.service';
 import OrdersCreateDto from './dto/orders-create.dto';
@@ -12,6 +12,15 @@ export default class OrdersController {
     await this.ordersService.create(ordersCreateDto);
     return {
       message: 'order created',
+    };
+  }
+
+  @Get('')
+  async getOrders() {
+    const data = await this.ordersService.getOrders();
+    return {
+      data,
+      message: 'orders get',
     };
   }
 }

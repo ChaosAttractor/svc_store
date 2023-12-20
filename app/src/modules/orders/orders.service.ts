@@ -46,4 +46,46 @@ export default class OrdersService {
     const values = insertClothesArray.join(',\n');
     await client.query(sql.replace('--values', values));
   }
+
+  async getOrders() {
+    const orders = await this.postgresService.query<{ id: number; [key: string]: unknown }>(`
+      SELECT
+          o.id,
+          o.name,
+          o.phone,
+          o.email,
+          o.country,
+          o.address,
+          o.zip_code as "zipCode",
+          d.name as "delivery",
+          d.price as "deliveryPrice"
+          FROM orders o
+              LEFT JOIN delivery d ON d.id = o.delivery
+    `);
+
+    const orderIds = orders.map((order) => order.id);
+    const clothes = await this.getOrderedClothes(orderIds);
+
+    orders.map((order) => {
+      order.clothes = clothes.filter((el) => el.orderId === order.id);
+    });
+
+    return orders;
+  }
+
+  private async getOrderedClothes(ids) {
+    const params = [ids];
+    const data = await this.postgresService.query<{ orderId: number; [key: string]: unknown }>(
+      `
+      SELECT
+          order_id as "orderId",
+          clothes_id as "clothesId",
+          quantity
+          FROM orders_clothes
+      WHERE order_id = ANY($1)
+    `,
+      params,
+    );
+    return data;
+  }
 }
