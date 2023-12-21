@@ -58,9 +58,12 @@ export default class OrdersService {
           o.address,
           o.zip_code as "zipCode",
           d.name as "delivery",
-          d.price as "deliveryPrice"
+          d.price as "deliveryPrice",
+          o.created_at as "createdAt",
+          o.updated_at as "updatedAt"
           FROM orders o
               LEFT JOIN delivery d ON d.id = o.delivery
+              ORDER BY o.updated_at
     `);
 
     const orderIds = orders.map((order) => order.id);
