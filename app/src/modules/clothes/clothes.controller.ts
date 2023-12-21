@@ -2,8 +2,8 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
 import ClothesService from './clothes.service';
 
-import { ClothesQuery } from './interfaces/clothes.interfaces';
 import ClothesCreateDto from './dto/clothes-create.dto';
+import { ClothesQuery } from './interfaces/clothes.interfaces';
 
 @Controller('clothes')
 export default class ClothesController {

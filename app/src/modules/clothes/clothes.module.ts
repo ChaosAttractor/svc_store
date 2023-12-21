@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import ClothesService from './clothes.service';
 import ClothesController from './clothes.controller';
+import ClothesService from './clothes.service';
 
 @Module({
   providers: [ClothesService],

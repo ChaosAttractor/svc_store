@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import PostgresService from '../postgres/postgres.service';
-import { TotalSelect } from '../../interfaces';
-import { TOTAL_SELECT } from '../../const/sql';
 import { ClothesInterface } from './interfaces/clothes.interfaces';
+import { TOTAL_SELECT } from '../../const/sql';
+import { TotalSelect } from '../../interfaces';
+import PostgresService from '../postgres/postgres.service';
 
 @Injectable()
 export default class ClothesService {
