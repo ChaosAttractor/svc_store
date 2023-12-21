@@ -22,8 +22,8 @@ export default class OrdersService {
       rows: [{ id }],
     } = await client.query<{ id: number }>(
       `
-      INSERT INTO "orders" (email, link, name, phone, country, address, zip_code, delivery, comment)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO "orders" (email, link, name, phone, country, address, zip_code, delivery, comment, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
       RETURNING id
     `,
       params,
@@ -36,11 +36,11 @@ export default class OrdersService {
 
     const insertClothesArray = [];
     clothes.forEach(({ id, quantity }) => {
-      insertClothesArray.push(`(${orderId}, ${id}, ${quantity})`);
+      insertClothesArray.push(`(${orderId}, ${id}, ${quantity}, now(), now())`);
     });
 
     const sql = `
-      INSERT INTO "orders_clothes" (order_id, clothes_id, quantity)
+      INSERT INTO "orders_clothes" (order_id, clothes_id, quantity, created_at, updated_at)
       VALUES --values
     `;
     const values = insertClothesArray.join(',\n');
