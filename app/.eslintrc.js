@@ -16,6 +16,8 @@ module.exports = {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'import/prefer-default-export': 'off',
     'no-useless-constructor': 'off',
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-explicit-any': ['warn'],
     'dot-notation': 'off',
     'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
     'import/extensions': [
