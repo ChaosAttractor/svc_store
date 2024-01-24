@@ -1,5 +1,5 @@
 {
-  "host": "localhost",
+  "host": "0.0.0.0",
   "user": "developer",
   "password": "123",
   "port": 5432,

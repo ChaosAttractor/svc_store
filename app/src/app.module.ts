@@ -6,9 +6,10 @@ import ClothesModule from './modules/clothes/clothes.module';
 import CollectionsModule from './modules/collections/collections.module';
 import FilesModule from './modules/files/files.module';
 import KeycloakModule from './modules/keycloak/keycloak.module';
-import { LoggerModule } from './modules/logger/logger.module';
+import LoggerModule from './modules/logger/logger.module';
 import OrdersModule from './modules/orders/orders.module';
 import PostgresModule from './modules/postgres/postgres.module';
+import UsersRegistrationModule from './modules/users/users.registration.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import PostgresModule from './modules/postgres/postgres.module';
     OrdersModule,
     KeycloakModule,
     LoggerModule,
+    UsersRegistrationModule,
   ],
 })
 export class AppModule {}
