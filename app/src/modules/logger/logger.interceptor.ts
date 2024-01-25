@@ -37,7 +37,7 @@ const getClientInfo = (token: string): string => {
   if (!(token && token !== 'null') || !token.includes('Bearer')) {
     return '';
   }
-  const { email, azp, tech } = jwtDecode.jwtDecode(token) as LoggerTokenInterface;
+  const { email, azp, tech } = jwtDecode(token) as LoggerTokenInterface;
   if (email) {
     return ` || email: ${email}${tech ? ` (tech: ${tech})` : ''}`;
   }

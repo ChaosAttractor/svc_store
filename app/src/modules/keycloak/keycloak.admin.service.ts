@@ -38,6 +38,9 @@ export default class KeycloakAdminService implements OnApplicationBootstrap {
     this.keycloakAdminClient = new KeycloakAdminClient({
       baseUrl: process.env.KEYCLOAK_URL,
       realmName: process.env.KEYCLOAK_REALM,
+      requestConfig: {
+        timeout: +process.env.KEYCLOAK_REQUEST_TIMEOUT || 10000,
+      },
     });
 
     this.keycloakAdminClientCredentials = {
@@ -63,7 +66,7 @@ export default class KeycloakAdminService implements OnApplicationBootstrap {
         await this.connect();
         return;
       }
-      const tokenExpires = jwtDecode.jwtDecode(accessToken)['exp'];
+      const tokenExpires = jwtDecode(accessToken)['exp'];
       if (moment(Number(tokenExpires) * 1000) <= moment().add(10, 'seconds')) {
         await this.connect();
       }
