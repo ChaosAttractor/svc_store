@@ -1,5 +1,4 @@
-import UserRepresentation from '@keycloak/keycloak-admin-client/lib/defs/userRepresentation';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { UsersRegistrationDto } from './dto/users.registration.dto';
 import KeycloakAdminService from '../keycloak/keycloak.admin.service';
@@ -16,10 +15,35 @@ export default class UsersRegistrationService {
     private logger: CustomLogger,
   ) {}
 
-  async create(dto: UsersRegistrationDto) {
-    const { username, firstName, lastName, enabled, password } = dto;
+  async create(dto: UsersRegistrationDto, contextId = '') {
+    this.logger.log('Создание пользователя', UsersRegistrationService.name, {}, contextId);
+    const {
+      username,
+      firstName,
+      lastName,
+      email,
+      emailVerified,
+      enabled,
+      password,
+    } = dto;
 
-    // todo проверка на сущ. юзера
+    const [data] = await this.postgresService.query(`
+      SELECT * FROM users WHERE email = $1
+    `, [email]);
+
+    /** Проверка на существование пользователя, если он есть, то выкидываем */
+    if (data) {
+      throw new BadRequestException({
+        message: 'email already exists',
+      });
+    }
+
+    /**
+     * todo
+     *  1. ui со списком почт
+     *  2. подтверждение пароля через nodemailer, каждые несколько запросов свапать
+     *  иначе получим бан на отправку писем, 500 писем в день можно
+     */
     // todo выдача группы ролей
     // todo создание ролей из файла при запуске приложения
     // todo повышение безопасности
@@ -33,14 +57,24 @@ export default class UsersRegistrationService {
           },
         ]
       : undefined;
-    return this.keycloakAdminService.createUsers({
+    const { id } = await this.keycloakAdminService.createUsers({
       username,
       enabled,
       credentials,
       firstName,
       lastName,
+      email,
+      emailVerified,
       groups: [],
       realm,
     });
+    await this.postgresService.query(`
+      INSERT INTO users
+        (id, keycloak_id, first_name, last_name, username, email, email_verified, enabled, created_at)
+      VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, now())
+    `, [id, firstName, lastName, username, email, emailVerified, enabled]);
+    return {
+      messages: 'success',
+    };
   }
 }

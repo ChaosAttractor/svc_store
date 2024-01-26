@@ -1,6 +1,8 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import pgConfig from './config/pg.config';
+
+import SetContextIdGlobalMiddleware from './middlewares/context-id.middleware';
 
 import ClothesModule from './modules/clothes/clothes.module';
 import CollectionsModule from './modules/collections/collections.module';
@@ -24,4 +26,8 @@ import UsersRegistrationModule from './modules/users/users.registration.module';
     UsersRegistrationModule,
   ],
 })
-export class AppModule {}
+export default class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SetContextIdGlobalMiddleware).forRoutes('*');
+  }
+}

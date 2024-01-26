@@ -5,7 +5,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin', 'import'],
-  extends: ['airbnb-base', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
+  extends: ['airbnb-base', 'plugin:@typescript-eslint/recommended'],
   root: true,
   env: {
     node: true,
@@ -18,6 +18,7 @@ module.exports = {
     'no-useless-constructor': 'off',
     'no-empty-function': 'off',
     '@typescript-eslint/no-explicit-any': ['warn'],
+    'class-methods-use-this': 'off',
     'dot-notation': 'off',
     'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
     'import/extensions': [
@@ -32,47 +33,9 @@ module.exports = {
     ],
     indent: 'off',
     'import/no-extraneous-dependencies': 'warn',
-    'import/order': [
-      1,
-      {
-        groups: ['external', 'builtin', 'internal', 'sibling', 'parent', 'index'],
-        pathGroups: [
-          {
-            pattern: 'components',
-            group: 'internal',
-          },
-          {
-            pattern: 'common',
-            group: 'internal',
-          },
-          {
-            pattern: 'routes/ **',
-            group: 'internal',
-          },
-          {
-            pattern: 'assets/**',
-            group: 'internal',
-            position: 'after',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['internal'],
-        alphabetize: {
-          order: 'asc',
-          caseInsensitive: true,
-        },
-      },
-    ],
-    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-var-requires': 'warn',
     'no-param-reassign': ['error', { ignorePropertyModificationsFor: ['interaction'] }],
   },
-  overrides: [
-    {
-      files: '*.model.ts',
-      rules: {
-        'import/no-cycle': 'off',
-      },
-    },
-  ],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
