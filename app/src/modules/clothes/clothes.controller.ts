@@ -1,9 +1,14 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors,
+} from '@nestjs/common';
 
+import { FileInterceptor } from '@nestjs/platform-express';
 import ClothesService from './clothes.service';
 
 import ClothesCreateDto from './dto/clothes-create.dto';
 import { ClothesQuery } from './interfaces/clothes.interfaces';
+import { Context } from '../../middlewares/context-id.middleware';
+import ClothesGalleryDto from './dto/clothes-gallery.dto';
 
 @Controller('clothes')
 export default class ClothesController {
@@ -24,5 +29,10 @@ export default class ClothesController {
     return {
       message: 'clothes created',
     };
+  }
+
+  @Post('/:id/gallery')
+  async createGallery(@Body() dto: ClothesGalleryDto[], @Context() context) {
+    return this.clothesService.createGallery(dto, context);
   }
 }

@@ -3,20 +3,31 @@ import { Injectable } from '@nestjs/common';
 import { PoolClient } from 'pg';
 
 import PostgresService from '../postgres/postgres.service';
+import OrdersCreateDto from './dto/orders-create.dto';
 
 @Injectable()
 export default class OrdersService {
   constructor(private readonly postgresService: PostgresService) {}
 
-  async create(dto) {
+  async create(dto: OrdersCreateDto) {
     await this.postgresService.transaction(async (client) => {
       const orderId = await this.createOrder(client, dto);
       await this.addOrderItems(client, orderId, dto);
     });
   }
 
-  private async createOrder(client: PoolClient, dto) {
-    const { email, link, name, phone, country, address, zipCode, delivery, comment } = dto;
+  private async createOrder(client: PoolClient, dto: OrdersCreateDto) {
+    const {
+      email,
+      link,
+      name,
+      phone,
+      country,
+      address,
+      zipCode,
+      delivery,
+      comment,
+    } = dto;
     const params = [email, link, name, phone, country, address, zipCode, delivery, comment];
     const {
       rows: [{ id }],

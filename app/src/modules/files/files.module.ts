@@ -4,6 +4,7 @@ import FilesController from './files.controller';
 import FilesService from './files.service';
 
 @Module({
+  exports: [FilesService],
   controllers: [FilesController],
   providers: [FilesService],
 })
