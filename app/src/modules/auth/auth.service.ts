@@ -1,5 +1,6 @@
 import {
-  BadRequestException, ConflictException,
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   Injectable,
@@ -16,22 +17,20 @@ import { Request, Response } from 'express';
 import AuthDto from './dto/auth.dto';
 import TokenDto from '../../dto/token.dto';
 import ResponseDto from '../../dto/response.dto';
-
 import {
   LoginDataResponse,
   StatusTokenResponse,
   TokenInterface,
 } from './interfaces/auth.interfaces';
 
-import authMessages from './const/auth.messages';
-
 import KeycloakApiService from '../keycloak/keycloak.api.service';
 import KeycloakAdminService from '../keycloak/keycloak.admin.service';
 import TokensService from '../tokens/tokens.service';
+import PostgresService from '../postgres/postgres.service';
 import { CustomLogger } from '../logger/custom.logger';
 import UsersGuardService from '../users_guard/users_guard.service';
-import PostgresService from '../postgres/postgres.service';
-import PromiseApiResponse from '../../dto/promise.response.dto';
+import authMessages from './const/auth.messages';
+import IGetUserInfo from '../../interfaces/get-user.info.interface';
 
 @Injectable()
 export default class AuthService {
@@ -40,9 +39,9 @@ export default class AuthService {
     private keycloakApiService: KeycloakApiService,
     private keycloakAdminService: KeycloakAdminService,
     private tokensService: TokensService,
+    private postgresService: PostgresService,
     private logger: CustomLogger,
     private usersGuardService: UsersGuardService,
-    private postgresService: PostgresService,
   ) {
   }
 
@@ -177,28 +176,32 @@ export default class AuthService {
       const rolesInfo = await this.usersGuardService.getUserRolesData(ip, keycloakId, contextId);
 
       // !todo унести в свой модуль
-      const [profileInfo] = await this.postgresService.query<{[key: string]: unknown}>(`
+      const [profileInfo] = await this.postgresService.query<IGetUserInfo[]>(`
         SELECT
-          id as "userId",
-          keycloak_id as "keycloakId",
+          id AS "userId",
+          keycloak_id AS "keycloakId",
           first_name AS "firstName",
           last_name as "lastName",
           TRIM(CONCAT(last_name, ' ', first_name)) AS "fullName",
           email
         FROM users
         WHERE keycloak_id = $1
-        GROUP BY users.id, users.keycloak_id, users.first_name,
-                 users.last_name, email
+        GROUP BY id, keycloak_id, first_name, last_name, email
       `, [keycloakId]);
 
       const userInfoToken = this.jwtService.sign({
         rolesInfo,
-        profileInfo,
+        profileInfo: {
+          ...profileInfo,
+        },
       }, { secret: process.env.COOKIE_SECRET });
 
       res.setHeader('X-User', userInfoToken);
     } catch (e) {
-      this.logger.error('Get userInfo error', AuthService.name, e, contextId);
+      const errorMessage = e.message;
+      this.logger.error('Get userInfo error', AuthService.name, {
+        errorMessage,
+      }, contextId);
       await this.tokensService.dropTokens(res, sessionKey, contextId);
       throw new UnauthorizedException({
         message: authMessages.LOGIN_ERROR,
@@ -336,14 +339,16 @@ export default class AuthService {
    * @param keycloakId
    */
   private async checkUserKeycloakAccess(keycloakId: string): Promise<void> {
-    const [access] = await this.postgresService.query(`
-      SELECT id FROM users
-      WHERE keycloak_id = $1
-        AND enabled IS TRUE
-    `, [keycloakId]);
-    if (!access) {
-      this.logger.log('Login user error:: no keycloak access', AuthService.name);
-      throw new BadRequestException({ message: authMessages.LOGIN_ERROR });
+    try {
+      await this.postgresService.query(`
+        SELECT id
+        FROM users
+        WHERE keycloak_id = $1
+          AND enabled IS TRUE
+      `, [keycloakId]);
+    } catch (e) {
+        this.logger.error('Login user error:: no keycloak access', AuthService.name);
+        throw new BadRequestException({ message: authMessages.LOGIN_ERROR });
     }
   }
 
@@ -392,7 +397,7 @@ export default class AuthService {
   /**
    * Проверка активности токена
    * */
-  async statusToken({ accessToken }: TokenDto): PromiseApiResponse<StatusTokenResponse> {
+  async statusToken({ accessToken }: TokenDto): Promise<ResponseDto<StatusTokenResponse>> {
     const payload = new URLSearchParams({
       token: accessToken,
       client_id: process.env.KEYCLOAK_CLIENT_ID,
@@ -445,7 +450,7 @@ export default class AuthService {
   /**
    * Выход из учетной записи и завершение текущей сессии
    * */
-  async logout({ accessToken }: TokenDto): PromiseApiResponse {
+  async logout({ accessToken }: TokenDto): Promise<ResponseDto> {
     const active = await this.statusToken({ accessToken });
     if (!active) {
       throw new BadRequestException({ message: authMessages.LOGOUT_ERROR });

@@ -13,5 +13,6 @@ import TokensModule from '../tokens/tokens.module';
   imports: [JwtModule.register({}), KeycloakModule, UsersGuardModule, TokensModule],
   providers: [AuthService],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export default class AuthModule {}

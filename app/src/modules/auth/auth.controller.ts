@@ -41,7 +41,6 @@ export default class AuthController {
     @GetSessionId() keycloakSession: string,
     @Context() contextId: string,
   ): PromiseApiResponse {
-    console.log(keycloakSession);
     return this.authService.logoutUser(res, keycloakSession, contextId);
   }
 }
