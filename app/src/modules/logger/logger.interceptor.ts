@@ -63,28 +63,29 @@ const getClientInfo = (token: string): string => {
  *  - hide-data: отключение отображения аргументов запроса
  */
 @Injectable()
-export class LoggingInterceptor implements NestInterceptor {
+export default class LoggingInterceptor implements NestInterceptor {
   constructor(
     @Inject(REFLECTOR_FIX) private reflector: Reflector,
     private logger: CustomLogger,
   ) {}
 
   private requestFinish = (args: LoggerRequestData) => {
-    const { action, now, instance, contextId } = args;
-    return tap(() =>
-      this.logger.log(
+    const {
+ action, now, instance, contextId,
+} = args;
+    return tap(() => this.logger.log(
         `${action}. Request finished in ${Date.now() - now}ms`,
         instance,
         {},
         contextId,
-      ),
-    );
+      ));
   };
 
-  private requestError = (args: LoggerRequestData) =>
-    catchError((err) => {
+  private requestError = (args: LoggerRequestData) => catchError((err) => {
       this.logger.debug(err);
-      const { now, user, action, instance, errorMessage, data: reqData, contextId } = args;
+      const {
+ now, user, action, instance, errorMessage, data: reqData, contextId,
+} = args;
 
       const errMessage = `${action}. ${errorMessage} || ${err.message || ''}`;
 

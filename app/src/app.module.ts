@@ -1,11 +1,18 @@
 import {
  MiddlewareConsumer, Module, NestModule, RequestMethod,
 } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
 
 import { JwtModule } from '@nestjs/jwt';
-import { APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
+
 import pgConfig from './config/pg.config';
 import redisConfig from './config/redis.config';
+
+import { REFLECTOR_FIX } from './const/logger';
+
+import LoggingInterceptor from './modules/logger/logger.interceptor';
+
+import { MethodsGuard } from './guard/methods.guard';
 
 import SetContextIdGlobalMiddleware from './middlewares/context-id.middleware';
 import CheckTokensGlobalMiddleware from './middlewares/check-tokens.global.middleware';
@@ -22,9 +29,7 @@ import PostgresModule from './modules/postgres/postgres.module';
 import UsersRegistrationModule from './modules/users_registration/users.registration.module';
 import UsersGuardModule from './modules/users_guard/users_guard.module';
 import TokensModule from './modules/tokens/tokens.module';
-import { REFLECTOR_FIX } from './const/logger';
-import { LoggingInterceptor } from './modules/logger/logger.interceptor';
-import { MethodsGuard } from './guard/methods.guard';
+import UserProfileModule from './modules/user_profile/user.profile.module';
 
 @Module({
   imports: [
@@ -42,6 +47,7 @@ import { MethodsGuard } from './guard/methods.guard';
     UsersGuardModule,
     AuthModule,
     TokensModule,
+    UserProfileModule,
   ],
   providers: [
     {
