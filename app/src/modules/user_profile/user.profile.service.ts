@@ -5,8 +5,4 @@ import PostgresService from '../postgres/postgres.service';
 export default class UserProfileService {
   constructor(private postgresService: PostgresService) {
   }
-
-  async getUserInfo() {
-    return true;
-  }
 }

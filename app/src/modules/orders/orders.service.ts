@@ -4,19 +4,27 @@ import { PoolClient } from 'pg';
 
 import PostgresService from '../postgres/postgres.service';
 import OrdersCreateDto from './dto/orders-create.dto';
+import { CustomLogger } from '../logger/custom.logger';
 
 @Injectable()
 export default class OrdersService {
-  constructor(private readonly postgresService: PostgresService) {}
+  constructor(
+    private readonly postgresService: PostgresService,
+    private readonly logger: CustomLogger,
+    ) {}
 
-  async create(dto: OrdersCreateDto) {
+  async create(dto: OrdersCreateDto, userId, contextId) {
+    this.logger.log('Создание заказа', OrdersService.name, { dto, userId }, contextId);
     await this.postgresService.transaction(async (client) => {
-      const orderId = await this.createOrder(client, dto);
+      const orderId = await this.createOrder(client, dto, userId);
       await this.addOrderItems(client, orderId, dto);
     });
+    return {
+      message: 'order created',
+    };
   }
 
-  private async createOrder(client: PoolClient, dto: OrdersCreateDto) {
+  private async createOrder(client: PoolClient, dto: OrdersCreateDto, userId: string) {
     const {
       email,
       link,
@@ -80,17 +88,19 @@ export default class OrdersService {
     const orderIds = orders.map((order) => order.id);
     const clothes = await this.getOrderedClothes(orderIds);
 
-    orders.map((order) => {
-      order.clothes = clothes.filter((el) => el.orderId === order.id);
-    });
+    orders.map((order) => ({
+      ...order,
+      clothes: clothes.filter((el) => el.orderId === order.id),
+    }));
 
-    return orders;
+    return {
+      data: orders,
+      message: 'orders get',
+    };
   }
 
   private async getOrderedClothes(ids) {
-    const params = [ids];
-    const data = await this.postgresService.query<{ orderId: number; [key: string]: unknown }>(
-      `
+    return this.postgresService.query<{ orderId: number; [key: string]: unknown }>(`
       SELECT
           order_id as "orderId",
           c.name,
@@ -99,9 +109,39 @@ export default class OrdersService {
             FROM orders_clothes oc
               LEFT JOIN clothes c ON c.id = oc.clothes_id
               WHERE order_id = ANY($1)
-    `,
-      params,
-    );
-    return data;
+    `, [ids]);
+  }
+
+  /**
+   * Получение заказов по ID пользователя
+   * todo добавить поддержку query
+   *
+   * @param userId
+   * @param contextId
+   */
+  async getPersonalOrders(userId, contextId) {
+    this.logger.log('Получение списка заказов пользователя', OrdersService.name, { userId }, contextId);
+    const data = await this.postgresService.query<{ id: number; [key: string]: unknown }>(`
+      SELECT
+        o.id,
+        o.country,
+        o.address,
+        o.created_at as "createdAt"
+      FROM orders o
+      WHERE o.user_id = $1
+    `, [userId]);
+    const ids = data.map((item) => item.id);
+
+    const clothes = await this.getOrderedClothes(ids);
+
+    data.map((order) => ({
+      ...order,
+      clothes: clothes.filter((el) => el.orderId === order.id),
+    }));
+
+    return {
+      data,
+      message: 'get personal orders',
+    };
   }
 }
