@@ -126,7 +126,7 @@ export default class OrdersService {
         o.id,
         o.country,
         o.address,
-        o.created_at as "createdAt"
+        o.created_at as "date"
       FROM orders o
       WHERE o.user_id = $1
     `, [userId]);
