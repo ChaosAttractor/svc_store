@@ -30,6 +30,7 @@ import UsersRegistrationModule from './modules/users_registration/users.registra
 import UsersGuardModule from './modules/users_guard/users_guard.module';
 import TokensModule from './modules/tokens/tokens.module';
 import UserProfileModule from './modules/user_profile/user.profile.module';
+import DeliveryModule from './modules/delivery/delivery.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import UserProfileModule from './modules/user_profile/user.profile.module';
     AuthModule,
     TokensModule,
     UserProfileModule,
+    DeliveryModule,
   ],
   providers: [
     {
