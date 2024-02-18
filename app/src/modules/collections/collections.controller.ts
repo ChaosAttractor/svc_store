@@ -1,6 +1,12 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body, Controller, Delete, Get, Param, Patch, Post,
+} from '@nestjs/common';
+
 import CollectionsService from './collections.service';
-import CollectionsCreateDto from './dto/collections-create.dto';
+
+import CollectionsDto from './dto/collections.dto';
+
+import { Context } from '../../middlewares/context-id.middleware';
 
 @Controller('collections')
 export default class CollectionsController {
@@ -8,19 +14,26 @@ export default class CollectionsController {
 
   @Get()
   async getList() {
-    const data = await this.collectionsService.getList();
-    return {
-      data,
-      message: 'get collections success',
-    };
+    return this.collectionsService.getList();
+  }
+
+  @Get(':id')
+  async getDetail(@Param('id') id: number, @Context() context) {
+    return this.collectionsService.getDetail(id, context);
   }
 
   @Post()
-  async create(@Body() dto: CollectionsCreateDto) {
-    const data = await this.collectionsService.create(dto);
-    return {
-      data,
-      message: 'collection created',
-    };
+  async create(@Body() dto: CollectionsDto) {
+    return this.collectionsService.create(dto);
+  }
+
+  @Patch(':id')
+  async update(@Body() dto: CollectionsDto, @Param('id') id: number, @Context() context) {
+    return this.collectionsService.update(id, dto, context);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: number, @Context() context) {
+    return this.collectionsService.delete(id, context);
   }
 }
